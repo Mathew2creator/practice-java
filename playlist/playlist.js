@@ -41,7 +41,8 @@ const musicCatalog = () => {
    * @returns {Playlist[]} The list of all playlists.
    */
   const getAllPlaylists = () => {
-      return playlists;  // Devuelve todas las listas de reproducción
+      // Devuelve una copia profunda del array para evitar mutaciones externas
+      return JSON.parse(JSON.stringify(playlists));
   };
 
   /**
@@ -69,13 +70,17 @@ const musicCatalog = () => {
           throw new Error('Playlist not found');
       }
 
-      // Si la canción no tiene el campo "favorite", lo asignamos como "false"
-      if (song.favorite === undefined) {
-          song.favorite = false;
-      }
+      // Crear una nueva canción con el campo favorite establecido en false
+      const newSong = {
+          title: song.title,
+          artist: song.artist,
+          genre: song.genre,
+          duration: song.duration,
+          favorite: false
+      };
 
       // Añadir la canción a la lista de reproducción
-      playlist.songs.push(song);
+      playlist.songs.push(newSong);
   };
 
   /**
@@ -136,10 +141,12 @@ const musicCatalog = () => {
           throw new Error('Invalid sorting criterion');
       }
 
-      return playlist.songs.sort((a, b) => {
-          if (a[criterion] < b[criterion]) return -1;
-          if (a[criterion] > b[criterion]) return 1;
-          return 0;
+      // Crear una copia del array antes de ordenar para evitar mutaciones
+      return [...playlist.songs].sort((a, b) => {
+          if (criterion === 'duration') {
+              return a[criterion] - b[criterion];
+          }
+          return a[criterion].localeCompare(b[criterion]);
       });
   };
 
@@ -148,5 +155,3 @@ const musicCatalog = () => {
 
 // Exporta la función musicCatalog como un módulo por defecto
 export default musicCatalog;
-
-  
